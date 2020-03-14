@@ -3,6 +3,11 @@ package collections.set;
 import java.util.Iterator;
 import java.util.NoSuchElementException;
 
+
+/**
+ * A static set to be used for object composition in the
+ * dynamic set, used to learn more about object composition
+ */
 public class StaticSet<E> implements Set<E> {
 
 	// current number of elements in set

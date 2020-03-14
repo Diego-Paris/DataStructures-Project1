@@ -2,6 +2,14 @@ package collections.set;
 
 import java.util.Iterator;
 
+
+/**
+ * As mentioned in class this implementation uses
+ * a static set through object composition for the
+ * project, implemented to use and learn more about
+ * object composition. 
+ * 
+ */
 public class DynamicSet<E> implements Set<E> {
 
 	// static set

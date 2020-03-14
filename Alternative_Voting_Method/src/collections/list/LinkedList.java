@@ -3,6 +3,11 @@ package collections.list;
 import java.util.Iterator;
 import java.util.NoSuchElementException;
 
+
+/**
+ * As mentioned in class a List data structure using  
+ * a singly linkedlist implementation
+ */
 public class LinkedList<E> implements List<E> {
 
 	private class Node {

@@ -7,184 +7,201 @@ import candidates.Candidate;
 import collections.list.LinkedList;
 import collections.list.List;
 import file_handlers.CSVUtils;
-import file_handlers.TXTwriter;
-
 
 /**
- * The purpose of this class is to handle
- * all of the project's logic using it's
- * components and data structures to 
- * execute the alternative voting method process. 
+ * This class executes all of the logic
+ * that is to be used in the project. The main
+ * method is found here as per project's requirements.
+ * The election begins by creating lists which pertains
+ * to candidates and ballots. Firstly it iterates through
+ * each ballot and indicates invalid and empty ballots to
+ * dispose of them. Once these ballots have been removed 
+ * they are given to the candidate of their first choice,
+ * in which they are store in the instances' Sets.
+ * Once this is done, we begin each round. A more detailed
+ * of the work done in each round is found below.
  * 
+ * @author Diego Paris
  * @see data\\requirements\\specs.pdf
- * @author Diego Paris 
  */
 public class Election {
-
+	
+	// Saves the name of the file used for ballots
+	String ballotFile;
+	
+	// Saves the name of the file used for candidates
+	String candidatesFile;
+	
+	// List to store each candidate object
 	List<Candidate> candidatesList;
+	// Temporary list to store ALL ballots
 	List<Ballot> ballotsList;
+	// Counter to keep track of empty ballots
 	int emptyBallots;
+	// Counter to keep track of invalid ballots
 	int invalidBallots;
+	// Keeps track of the total ballots being considered
+	// for each round
 	int totalBallots;
+	// Stores true if the winner has been found, false otherwise
 	boolean winnerFound = false;
-	int winnerID = 0;
+	// Saves the winning candidate into a seperate object
+	Candidate winner;
+	// Keeps track of the current round
+	int round;
 
+	// Constructs a new election object
 	public Election() {
+		// Sets each counter their first iterations respectively
 		emptyBallots = 0;
 		invalidBallots = 0;
 		totalBallots = 0;
+		round = 1;
+		
 	}
 
 	/**
-	 * Runs the programs logic.
+	 * For sake of cleanliness and preference I have opted to create
+	 * a new Election object and invoke it's run method, in which
+	 * all the logic for the project is being executed.
 	 * 
 	 * @param none
 	 * @return none
-	 * @throws FileNotFoundException 
+	 * @throws FileNotFoundException
+	 */
+	public static void main(String[] args) throws FileNotFoundException {
+		
+		/**
+		 * This project is design to read files from the data folder -> input package
+		 * to test out this project, please drag and drop your files into the input package
+		 * and make sure to copy them into it when prompted. If the names are different then
+		 * you may change them below at the beginning of the run function. Thank you <3.
+		 */
+		
+		// Constructs a new election object
+		Election election = new Election();
+		// Invokes the election object's run method
+		election.run();
+	}
+	
+	/**
+	 * Executes the logic used for the project
+	 * 
+	 * @param
+	 * @return
+	 * @throws
 	 */
 	public void run() throws FileNotFoundException {
-		// Gets the candidate.csv and creates a list of candidate objects
+
+		// Change the name of the string below for candidates and ballots respectively
+		
+		// Initializes a new list of candidate objects using the file name given
 		candidatesList = CSVUtils.getCandidates("candidates.csv");
 
-		// Get the ballots.csv and creates a list of ballot objects
+		// Initializes a new list of ballot objects using the file name given
 		ballotsList = CSVUtils.getBallots("ballots.csv");
-
-		// Assigns the total number of ballots that were entered.
+		
+		// Stores the total number of ballots submitted
 		totalBallots = ballotsList.size();
-		TXTwriter.write("Number of ballots: " + totalBallots);
+		
+		// Writes to results the amount of ballots submitted
+		CSVUtils.write("Number of ballots: " + totalBallots);
 
-		// Iterates through the ballots and finds any invalid or
-		// empty ballot. If one of the prior is found, then we 
-		// remove it and add to the specified counter.
+		// Iterates through each ballot
 		for (Ballot ballot : ballotsList) {
 			// If an empty ballot is found then add to counter,
 			// then remove the ballot
 			if(ballot.isEmpty()) {
-				System.out.println("empty removed");
+				// Adds to the total number of empty ballots
 				emptyBallots++;
+				// Removes from the total number of ballots
 				totalBallots--;
+				// Removes the current ballot from the list
 				ballotsList.remove(ballot);
 				continue;
 			}
 			// If an invalid ballot is found then add to
 			// its counter as well. Remove said ballot.
 			if(ballot.isInvalid(candidatesList)) {
-				System.out.println("invalid removed");
+				// Adds to the total number of invalid ballots
 				invalidBallots++;
+				// Removes from the total number of ballots
 				totalBallots--;
+				// removes the current ballot from the list
 				ballotsList.remove(ballot);
 				continue;
 			}
 		}
 
 		// Outputs the total amount of invalid and blank ballots
-		TXTwriter.write("Number of blank ballots " + emptyBallots);
-		TXTwriter.write("Number of invalid ballots " + invalidBallots);
+		CSVUtils.write("Number of blank ballots " + emptyBallots);
+		CSVUtils.write("Number of invalid ballots " + invalidBallots);
 
-
-		//TODO ^^ when iterating through the array use the toArray method
-		//to avoid modifying the iterable directly
-
-
-		//iterates through each ballot and assigns it to it's first choice
+		// Assigns everyone their first choice
 		for(Ballot ballot: ballotsList) {
 			int candiID = -1;
 
 			// gets current ballot's first choice
 			candiID = (ballot.getCandidatebyRank(1))-1;
+			
+			// Adds the current ballot to its first choice
 			candidatesList.get(candiID).addBallot(ballot);
-
-			//TODO for debugging
-			System.out.print("Ballot: [");
-			ballot.printElements();
-			System.out.println("] added to: " + candidatesList.get(candiID).getName() + " (" + candidatesList.get(candiID).getID()+")");
-
 		}
 
-		//TODO for debugging
-		for (Candidate candi : candidatesList) {
-			System.out.println(candi.getName() + " (" + candi.getID() + ") ");
-			for (Ballot ballot : candi.votes) {
-				ballot.printElements();
-				System.out.println("\n");
-			}
-		}
-
-		List<Candidate> toElim;
-
-//		for(Candidate candi : toElim) {
-//			System.out.println(candi.getName());				
-//		}
-//
-//		// will check the current list to eliminate, and begin
-//		// checking the value of their ballots starting from 2. 
-//		System.out.println(recursiveTieSolver(toElim, 2));
-//		System.out.println(totalBallots);
-		//System.out.println();
-
-		//Goes through each round
+		
+		// Continues to run until a winner has been found, each round
+		// is executed within this while loop
 		while(!winnerFound) {
 			
-			System.out.println("start of round");	
-
-			// Iterate through each candidate and check if they have over 50%
-			// of the current total ballots, if so, then they win
-//			for (Candidate candi : candidatesList) {
-//				// If total votes is greater than 50%, candidate won
-//				if(candi.votes.size() > totalBallots/2) {
-//					// winner has been found, set to true
-//					winnerFound = true;
-//					// save the winner's ID
-//					winnerID = candi.getID();
-//					// break out of the while
-//					break;
-//				}
-//			}
+			// Gets the list of potential candidates to remove
+			List<Candidate> toElim = getCandisToElim(candidatesList);
 			
-			if(candidatesList.size() == 1) {
-				winnerID = candidatesList.get(0).getID();
-				winnerFound = true;
-				break;
+			// Using recursiveTieSolver returns the ID from the candidate that 
+			// is being removed. A more in depth explanation of how
+			// recursiveTieSolver does this can be found at its declaration.
+			// The number 2 is being give into the parameter as we want it to 
+			// begin solving a potential tie by checking the amount of second 
+			// preferences and so on.
+			// Using removeCandidate uses the candidateID given to eliminate
+			// that canidate from each ballot and reorganizes them
+			// a more detailed explanation can be found at its declaration.
+            removeCandidate(recursiveTieSolver(toElim,2));
+            
+            
+            // Iterates through each candidate
+            for(Candidate candidate: candidatesList) {
+            	// If the candidate has more than 50 percent of total
+            	// amount of votes, then that candidate wins
+				if(candidate.votes.size() > totalBallots/2) {
+					// Creates a new candidate object using the candidate 
+					// who won
+					winner = new Candidate(candidate);
+					// Set to true since winner has been found
+					winnerFound = true;
+					break;
+				}
 			}
-			
-
-			// Get the list of potential candidates to remove
-			toElim = getCandisToElim(candidatesList);
-
-			// Verifies if the amount of potential candidates
-			// to remove this round is one
-			if(toElim.size() == 1) {
-				// If the list is one, then we remove that candidate
-				System.out.println("We removed: " + toElim.get(0).getName() + " " + toElim.get(0).getID());
-				this.removeCandidate(toElim.get(0).getID());
-
-			} else {
-				// If there is a tie, then we give the list, to the 
-				// tieSolver method to return the losing candidate'sID
-				System.out.println("We removed candidate with this ID " + this.recursiveTieSolver(toElim, 2));
-				this.removeCandidate(this.recursiveTieSolver(toElim, 2));
-
-			}
-			System.out.println("Candidates currently in round: ");
-			for (Candidate candidate : candidatesList) {
-				System.out.println(".)" + candidate.getName());
-			}
-
-
-
-			System.out.println("End of round");
+            
+            
+            
 		}
-		System.out.println("Winner ID is : " + winnerID);
-		//move ballot method
-		// check if the current candidate is still first choice
-		// if it is, leave be. If not, then get the first choice
-		// and get that candidate and add it the same ballot, once
-		// added remove the one from the instance candidate
+		// Writes to results file the winner of the given ballots and candidates
+		CSVUtils.write("Winner: " + winner.getName() + " wins with " + winner.votes.size() + " #1's");
 
+	}//end of run
 
-	}
-
+	
+	
+	/**
+	 * Takes in the integer value of a candidate to be removed
+	 * from the list being considered for the election.
+	 * 
+	 * @param candidateID to remove
+	 * @return none 
+	 */
 	public void removeCandidate(int candidateID) {
+		// Sets the candidate object to null
+		Candidate candiToRemove = null;
 		//Goes through each candidate
 		for (Candidate candidate : candidatesList) {
 			//Goes through each of the candidates votes
@@ -195,97 +212,45 @@ public class Election {
 				if(ballot.isEmpty()) {
 					totalBallots--;
 					candidate.votes.remove(ballot);
-				}
-			}
-		}
-
-		//Goes through each candidate
-		for (Candidate candidate : candidatesList) {
-			//If the losing candidate is found
+				}//end of if
+			}//end of for ballots
+			// If candidate is found then reference it
 			if(candidate.getID() == candidateID) {
-				//we go through the losing candidates ballots
-				for(Ballot ballot: candidate.votes) {
-					//Gets the new first choice in the ballot
-					int newFirstChoice = ballot.getCandidatebyRank(1);
-					//searches for the new first choice
-					for (Candidate candidateToFind : candidatesList) {
-						// If the new choice is found then give that canidate
-						// the current ballot
-						if(candidateToFind.getID() == newFirstChoice) {
-							candidateToFind.addBallot(ballot);
-						}
-					}
-				}
+				candiToRemove = candidate;
+			}
+		}//end of for in candidates
 
-				candidatesList.remove(candidate);
-				break;
+		
+		// Iterates through each of the losing
+		// candidates votes
+		for(Ballot ballot: candiToRemove.votes) {
+			// Gets the new first choice of the ballot
+			int newFirstChoice = ballot.getCandidatebyRank(1);
+			// Iterates through the candidates
+			for(Candidate candidate: candidatesList) {
+				// If the current candidate is first choice then add ballot
+				if(candidate.getID() == newFirstChoice)
+					candidate.addBallot(ballot);
 			}
 		}
-
-
-
+		// Write to result the current candidate removed for the round
+		CSVUtils.write("Round " + (round++) + ": " + candiToRemove.getName() + " was eliminated with " + candiToRemove.votes.size() + " #1's");
+		// Removes the candidate from the list
+		candidatesList.remove(candiToRemove);
 
 
 	}
 
-
-
-
-	// TODO when a candidate is to be removed then update the ballots and reallocate
-	// those ballots
-	public void removeCandidateOld(int candidateID) {
-		Object[] candidatesAsArray = candidatesList.toArray();
-
-
-		//Iterates through each candidate
-		for (Candidate candidate : candidatesList) {
-			//Iteratres through their votes
-			Object[] ballotArray = candidate.votes.toArray();
-
-			for(Ballot ballot: candidate.votes) {
-				// Eliminates the candidate that lost 
-				// from the remaining ballots
-				ballot.eliminate(candidateID);
-
-				//if the ballot is empty than we remove the ballot
-				if(ballot.isEmpty())
-					totalBallots--;
-				candidate.votes.remove(ballot);
-			}
-		}
-
-		//Iterates through the candidates running
-		for(Candidate candi: candidatesList) {
-			//Checks if we found the one we want to remove
-			if(candi.getID() == candidateID) {
-				// for each of those ballots we need to move them
-				for(Ballot ballot: candi.votes) {
-					//iterates through the list outside again
-					for(Candidate candidate: candidatesList) {
-						// checks if the new first choice of the ballot
-						// is the candidate we're currently at
-						if(ballot.getCandidatebyRank(1) == candi.getID()) {
-							// if so then we add that ballot to them
-							candidate.addBallot(ballot);
-						}
-					}	
-				}
-			}
-			//after we're done with this then remove that person from the race
-			candidatesList.remove(candi);
-			break;
-		}
-		
-		
-
-	}
-
-
-
-
-
-
-
+	
+	/**
+	 * Takes in a list of potential candidates to lose in the current round
+	 * and the number for which to start looking for the next preference,
+	 * which in this implementation is 2. If the list is one returns that ID
+	 * if not then solves for the edge cases explained in the method.
+	 * 
+	 * @param List of potential candidates to remove and number to begin looking for preference
+	 * @return the ID of the candidate who lost the tie
+	 */
 	public int recursiveTieSolver(List<Candidate>list, int n) {
 		// Creates a new list using the given parameter
 		// we will modify these candidate objects
@@ -328,12 +293,7 @@ public class Election {
 		}
 
 
-		/* Due to time constraints and limited use of data
-		 * structures mentioned in class until now, I could 
-		 * not think of an alternative method to avoid a complex 
-		 * triple nested for loop without reimagining my project's
-		 * implementation and meeting the project's deadline.
-		 */
+		
 		// Iterate through the candidates up to eliminate
 		for (Candidate candiToElim: toEliminate) {
 			// Iterates through the outer candidates list
@@ -362,15 +322,16 @@ public class Election {
 		return recursiveTieSolver(toEliminate, n+1);
 	}
 
-
-
-
-
-
-
-
-
-
+	
+	/**
+	 * Takes in the list of candidates currently running for the election
+	 * and checks for the lowest amount of votes and adds them to a list 
+	 * to return. May return a list longer than the length of one if there
+	 * is a tie for the current round
+	 *
+	 * @param The list of candidates currently running
+	 * @return A list of potential candidates to remove from the election
+	 */
 	public List<Candidate> getCandisToElim(List<Candidate> list) {
 		// Creates a new list to save potential candidates to remove.
 		List<Candidate> toEliminate = new LinkedList<Candidate>();
@@ -399,21 +360,6 @@ public class Election {
 		}		
 		// returns the list of potential candidates to eliminate
 		return toEliminate;
-	}
+	}//end of find candidates to eliminate
 
-
-
-	// TODO +++NOTES+++
-	// ballot.eliminate(3)  receives a candidate ID and eliminates it
-	// everything that had a higher rank now must be adjusted
-	// seperation of concerns, the original design
-	// every set that has a ballot where the number 1 has been eliminated must be moved 
-	// to a different set
-	// number one is the highest priority 
-
-	// remove(E obj)
-	// remove(int index)
-	// what happens if your objects are ints as well?
-	// implement -> removePos(int index) // removes a position specifically
-	// and remove an int  
-}
+}//end of class

@@ -3,6 +3,12 @@ package collections.list;
 import java.util.Iterator;
 import java.util.NoSuchElementException;
 
+
+/**
+ * As mentioned in class a List data structured
+ * implemented using arrays
+ * 
+ */
 public class ArrayList<E> implements List<E> {
 
 	// private fields
