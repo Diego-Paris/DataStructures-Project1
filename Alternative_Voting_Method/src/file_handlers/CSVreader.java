@@ -3,6 +3,8 @@ package file_handlers;
 import java.nio.file.Files;
 import java.nio.file.Paths;
 import java.util.List;
+//import collections.list.*;
+
 
 /** 
  * This class is used to facilitate reading
@@ -35,8 +37,11 @@ public class CSVreader {
     		
 			for(String line: lines) 
 			{
-				System.out.println(line);
+				//System.out.println(line);
+				
+				
 			}
+			
 		} 
 		catch (Exception e) 
 		{

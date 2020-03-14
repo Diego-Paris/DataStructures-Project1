@@ -5,24 +5,24 @@ import java.io.IOException;
 
 /**
  * This class is used to write the results
- * of the votes given as per the project's
- * requirements.
+ * of the votes given to a text file as per 
+ * the project's requirements.
  * 
  * @see data\\requirements\\specs.pdf
  * @author Diego Paris
  */
 public class TXTwriter {
 
-	public void outputResults() {
+	public static void write(String line) {
 		try {
             FileWriter writer = new FileWriter("data\\output\\output.txt", true);
-            writer.write("Hello World");
-            writer.write("\r\n");   // write new line
-            writer.write("wow!");
+            writer.write(line);
+            writer.write("\r\n"); 
             writer.close();
         } catch (IOException e) {
             e.printStackTrace();
         }
+		
 	}
 		
 }
